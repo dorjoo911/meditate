@@ -1,57 +1,63 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  Image,
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 
 export default function Counter() {
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
   const [count1, setcount1] = useState(600);
   const [count2, setcount2] = useState(120);
 
   const [isCount, setIsCount] = useState(false);
 
-  const ref1 = useRef(null);
-  const ref2 = useRef(null);
-
-  const toggle = () => {
-    setIsCount(!isCount);
-  };
+  const toggle = () => setIsCount(!isCount);
 
   const start = () => {
-    if (!ref1.current) {
-      ref1.current = setInterval(() => setcount1((prev) => prev - 1), 1000);
-    }
+    ref1.current = setInterval(() => setcount1((prev) => prev - 1), 1000);
     toggle();
   };
 
   const pause = () => {
-    if (!ref2.current) {
-      ref2.current = setInterval(() => setcount2((prev) => prev - 1), 1000);
+    if (ref1.current) {
+      clearInterval(ref1.current);
     }
-    setcount1(ref1.current);
+    ref2.current = setInterval(() => setcount2((prev) => prev - 1), 1000);
   };
 
   const resume = () => {
+    if (ref2.current) {
+      clearInterval(ref2.current);
+    }
     ref1.current = setInterval(() => setcount1((prev) => prev - 1), 1000);
-    setcount2(ref2.current);
   };
 
   const stop = () => {
+    // if (ref2.current && ref1.current) {
     clearInterval(ref1.current);
     clearInterval(ref2.current);
+    // }
     toggle();
   };
 
   useEffect(() => {
-    return () => clearInterval(ref2.current);
-  }, []);
+    if (count1 > 0) return () => clearInterval(ref2.current);
+  }, [count1]);
   useEffect(() => {
-    return () => clearInterval(ref1.current);
-  }, []);
+    if (count2 > 0) return () => clearInterval(ref1.current);
+  }, [count2]);
 
   return (
     <View style={{ flex: 1 }}>
       {!isCount ? (
         <View style={styles1.screenContainer1}>
           <TouchableOpacity
-            onPress={start}
+            onPress={() => start()}
             style={{
               fontSize: 30,
               color: "orange",
@@ -60,7 +66,9 @@ export default function Counter() {
               margin: 5,
             }}
           >
-            Start Meditation
+            <Text style={{ fontSize: 30, color: "gold" }}>
+              Start Meditation
+            </Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -81,29 +89,31 @@ export default function Counter() {
               </Text>
             </View>
 
-            <View style={{ margin: "50px" }}>
-              <View>
-                <Button title="Pause" onPress={pause} />
+            <View style={{ margin: "50px", border: "2px solid gold" }}>
+              <View style={{ margin: "5px", border: "2px solid gold" }}>
+                <Button title="TAKE REST" onPress={() => pause()} />
               </View>
-              <br />
-              <View>
-                <Button title="Resume" onPress={resume} />
+
+              <View style={{ margin: "5px", border: "2px solid gold" }}>
+                <Button title="RESUME MEDITATE" onPress={() => resume()} />
               </View>
             </View>
           </View>
 
           <View>
             <TouchableOpacity
-              onPress={stop}
+              onPress={() => stop()}
               style={{
                 margin: 50,
                 color: "gold",
                 fontSize: 50,
                 backgroundColor: "red",
                 textAlign: "center",
+                border: "2px solid gold",
+                padding: 10,
               }}
             >
-              STOP
+              <Text style={{ color: "white" }}>STOP MEDITATE</Text>
             </TouchableOpacity>
           </View>
         </View>
